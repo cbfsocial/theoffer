@@ -35,12 +35,8 @@
     }
 
     @keyframes fall {
-        from {
-            transform: translateY(-100px);
-        }
-        to {
-            transform: translateY(100vh);
-        }
+        from { transform: translateY(-100px); }
+        to { transform: translateY(100vh); }
     }
 
     .content {
@@ -49,13 +45,24 @@
     }
 
     h1 {
-        font-size: 40px;
+        font-size: 36px;
         margin-bottom: 20px;
     }
 
-    #timer {
-        font-size: 24px;
-        margin-bottom: 40px;
+    .sub {
+        margin-top: 40px;
+        font-size: 28px;
+    }
+
+    .label {
+        font-size: 16px;
+        opacity: 0.7;
+        margin-top: 10px;
+    }
+
+    .timer {
+        font-size: 22px;
+        margin-bottom: 20px;
     }
 
     .buttons button {
@@ -67,17 +74,9 @@
         border-radius: 8px;
     }
 
-    .yes {
-        background: green;
-        color: white;
-    }
+    .yes { background: green; color: white; }
+    .no { background: red; color: white; }
 
-    .no {
-        background: red;
-        color: white;
-    }
-
-    /* Popup */
     #popup {
         position: fixed;
         top: 50%;
@@ -89,11 +88,6 @@
         display: none;
         z-index: 2;
     }
-
-    #popup button {
-        margin-top: 10px;
-        padding: 5px 15px;
-    }
 </style>
 </head>
 <body>
@@ -102,7 +96,14 @@
 
 <div class="content">
     <h1>HAVE I RECEIVED THE OFFER?</h1>
-    <div id="timer"></div>
+
+    <div class="label">waiting for:</div>
+    <div id="timer1" class="timer"></div>
+
+    <!-- Второй блок -->
+    <div class="sub">HAVE I RECEIVED A GUIDE?</div>
+    <div class="label">it took only:</div>
+    <div id="timer2" class="timer"></div>
 
     <div class="buttons">
         <button class="yes" onclick="showPopup('ha ha nice joke')">Yes</button>
@@ -126,31 +127,46 @@
         star.style.animationDuration = (Math.random() * 3 + 2) + "s";
         starsContainer.appendChild(star);
 
-        setTimeout(() => {
-            star.remove();
-        }, 5000);
+        setTimeout(() => star.remove(), 5000);
     }
 
     setInterval(createStar, 100);
 
-    // ⏱ Timer
-    const startDate = new Date("2026-03-27T01:20:00+03:00");
+    // ⏱ Timer 1 (с момента)
+    const startDate1 = new Date("2026-03-27T01:20:00+03:00");
 
-    function updateTimer() {
+    function updateTimer1() {
         const now = new Date();
-        const diff = now - startDate;
+        const diff = now - startDate1;
 
-        const seconds = Math.floor(diff / 1000) % 60;
-        const minutes = Math.floor(diff / 1000 / 60) % 60;
-        const hours = Math.floor(diff / 1000 / 60 / 60) % 24;
-        const days = Math.floor(diff / 1000 / 60 / 60 / 24);
+        const s = Math.floor(diff / 1000) % 60;
+        const m = Math.floor(diff / 60000) % 60;
+        const h = Math.floor(diff / 3600000) % 24;
+        const d = Math.floor(diff / 86400000);
 
-        document.getElementById("timer").innerText =
-            `${days}d ${hours}h ${minutes}m ${seconds}s`;
+        document.getElementById("timer1").innerText =
+            `${d}d ${h}h ${m}m ${s}s`;
     }
 
-    setInterval(updateTimer, 1000);
-    updateTimer();
+    setInterval(updateTimer1, 1000);
+    updateTimer1();
+
+    // ⏱ Timer 2 (фиксированный результат)
+    const startDate2 = new Date("2026-04-04T02:22:00");
+    const endDate2 = new Date("2026-04-14T21:35:00");
+    const fixedDiff = endDate2 - startDate2;
+
+    function updateTimer2() {
+        const s = Math.floor(fixedDiff / 1000) % 60;
+        const m = Math.floor(fixedDiff / 60000) % 60;
+        const h = Math.floor(fixedDiff / 3600000) % 24;
+        const d = Math.floor(fixedDiff / 86400000);
+
+        document.getElementById("timer2").innerText =
+            `${d}d ${h}h ${m}m ${s}s`;
+    }
+
+    updateTimer2();
 
     // 🔥 Popup
     function showPopup(text) {
@@ -162,18 +178,15 @@
         document.getElementById("popup").style.display = "none";
     }
 
-    // 🎯 Secret code: "offer"
+    // 🎯 Secret code
     let buffer = "";
-
     document.addEventListener("keydown", (e) => {
         buffer += e.key.toLowerCase();
-
-        // оставляем только последние 10 символов
         buffer = buffer.slice(-10);
 
         if (buffer.includes("offer")) {
             showPopup("FINALLY");
-            buffer = ""; // сброс
+            buffer = "";
         }
     });
 </script>
