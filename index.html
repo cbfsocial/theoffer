@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Have I Received the Offer?</title>
+<title>Status Tracker</title>
 <style>
     body {
         margin: 0;
@@ -21,7 +21,6 @@
         position: fixed;
         width: 100%;
         height: 100%;
-        overflow: hidden;
         z-index: 0;
     }
 
@@ -30,7 +29,6 @@
         width: 2px;
         height: 10px;
         background: white;
-        opacity: 0.8;
         animation: fall linear infinite;
     }
 
@@ -44,38 +42,22 @@
         z-index: 1;
     }
 
-    h1 {
-        font-size: 36px;
-        margin-bottom: 20px;
-    }
+    h1 { font-size: 34px; margin: 15px 0; }
+    .label { opacity: 0.7; font-size: 14px; }
+    .timer { font-size: 22px; margin-bottom: 20px; }
+    .section { margin-top: 35px; }
 
-    .sub {
-        margin-top: 40px;
-        font-size: 28px;
-    }
-
-    .label {
-        font-size: 16px;
-        opacity: 0.7;
-        margin-top: 10px;
-    }
-
-    .timer {
-        font-size: 22px;
-        margin-bottom: 20px;
-    }
-
-    .buttons button {
-        padding: 15px 30px;
-        font-size: 18px;
+    button {
+        padding: 12px 25px;
         margin: 10px;
         border: none;
-        cursor: pointer;
         border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
     }
 
-    .yes { background: green; color: white; }
-    .no { background: red; color: white; }
+    .yes { background: green; }
+    .no { background: red; }
 
     #popup {
         position: fixed;
@@ -83,10 +65,9 @@
         left: 50%;
         transform: translate(-50%, -50%);
         background: #222;
-        padding: 30px;
+        padding: 25px;
         border-radius: 10px;
         display: none;
-        z-index: 2;
     }
 </style>
 </head>
@@ -95,20 +76,32 @@
 <div id="stars"></div>
 
 <div class="content">
-    <h1>HAVE I RECEIVED THE OFFER?</h1>
 
-    <div class="label">waiting for:</div>
-    <div id="timer1" class="timer"></div>
+    <!-- 🔥 DOCUMENT COLLECTION -->
+    <h1>DOCUMENT COLLECTION</h1>
+    <div class="label">in progress:</div>
+    <div id="docTimer" class="timer"></div>
 
-    <!-- Второй блок -->
-    <div class="sub">HAVE I RECEIVED A GUIDE?</div>
-    <div class="label">it took only:</div>
-    <div id="timer2" class="timer"></div>
-
-    <div class="buttons">
+    <!-- КНОПКИ -->
+    <div>
         <button class="yes" onclick="showPopup('ha ha nice joke')">Yes</button>
         <button class="no" onclick="showPopup(')')">No</button>
     </div>
+
+    <!-- 📉 OFFER (перенесен вниз и зафиксирован) -->
+    <div class="section">
+        <h1>HAVE I RECEIVED AN OFFER?</h1>
+        <div class="label">waiting for:</div>
+        <div id="offerTimer" class="timer"></div>
+    </div>
+
+    <!-- 📦 GUIDE -->
+    <div class="section">
+        <h1>HAVE I RECEIVED A GUIDE?</h1>
+        <div class="label">it took only:</div>
+        <div id="guideTimer" class="timer"></div>
+    </div>
+
 </div>
 
 <div id="popup">
@@ -118,59 +111,51 @@
 
 <script>
     // ⭐ Stars
-    const starsContainer = document.getElementById("stars");
-
-    function createStar() {
+    setInterval(() => {
         const star = document.createElement("div");
-        star.classList.add("star");
+        star.className = "star";
         star.style.left = Math.random() * window.innerWidth + "px";
         star.style.animationDuration = (Math.random() * 3 + 2) + "s";
-        starsContainer.appendChild(star);
-
+        document.getElementById("stars").appendChild(star);
         setTimeout(() => star.remove(), 5000);
-    }
+    }, 100);
 
-    setInterval(createStar, 100);
+    // 📉 OFFER TIMER (фиксированный)
+    const offerStart = new Date("2026-03-27T01:20:00+03:00");
+    const offerEnd = new Date("2026-04-21T00:07:00+03:00");
+    const offerDiff = offerEnd - offerStart;
 
-    // ⏱ Timer 1 (с момента)
-    const startDate1 = new Date("2026-03-27T01:20:00+03:00");
-
-    function updateTimer1() {
-        const now = new Date();
-        const diff = now - startDate1;
-
+    function renderDiff(diff, el) {
         const s = Math.floor(diff / 1000) % 60;
         const m = Math.floor(diff / 60000) % 60;
         const h = Math.floor(diff / 3600000) % 24;
         const d = Math.floor(diff / 86400000);
-
-        document.getElementById("timer1").innerText =
+        document.getElementById(el).innerText =
             `${d}d ${h}h ${m}m ${s}s`;
     }
 
-    setInterval(updateTimer1, 1000);
-    updateTimer1();
+    renderDiff(offerDiff, "offerTimer");
 
-    // ⏱ Timer 2 (фиксированный результат)
-    const startDate2 = new Date("2026-04-04T02:22:00");
-    const endDate2 = new Date("2026-04-14T21:35:00");
-    const fixedDiff = endDate2 - startDate2;
+    // 📦 GUIDE (фиксированный)
+    const guideStart = new Date("2026-04-04T02:22:00");
+    const guideEnd = new Date("2026-04-14T21:35:00");
+    renderDiff(guideEnd - guideStart, "guideTimer");
 
-    function updateTimer2() {
-        const s = Math.floor(fixedDiff / 1000) % 60;
-        const m = Math.floor(fixedDiff / 60000) % 60;
-        const h = Math.floor(fixedDiff / 3600000) % 24;
-        const d = Math.floor(fixedDiff / 86400000);
+    // 🔥 DOCUMENT COLLECTION (живой таймер)
+    const docStart = offerEnd;
 
-        document.getElementById("timer2").innerText =
-            `${d}d ${h}h ${m}m ${s}s`;
+    function updateDocTimer() {
+        const now = new Date();
+        const diff = now - docStart;
+        renderDiff(diff, "docTimer");
     }
 
-    updateTimer2();
+    setInterval(updateDocTimer, 1000);
+    updateDocTimer();
 
-    // 🔥 Popup
-    function showPopup(text) {
-        document.getElementById("popup-text").innerText = text;
+    // popup
+    function showPopup(t) {
+        document.getElementById("popup-text").innerText = t;
         document.getElementById("popup").style.display = "block";
     }
 
@@ -178,12 +163,11 @@
         document.getElementById("popup").style.display = "none";
     }
 
-    // 🎯 Secret code
+    // secret code
     let buffer = "";
     document.addEventListener("keydown", (e) => {
         buffer += e.key.toLowerCase();
         buffer = buffer.slice(-10);
-
         if (buffer.includes("offer")) {
             showPopup("FINALLY");
             buffer = "";
